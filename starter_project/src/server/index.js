@@ -3,6 +3,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 dotenv.config();
+const textapi = new aylien({
+  application_id: process.env.API_ID,
+  application_key: process.env.API_KEY
+});
 
 const app = express();
 
@@ -22,7 +26,17 @@ app.get('/', function (req, res) {
 
 
 // POST Route
-
+app.post('/api', (req, res) => {
+    const { url } = req.body;
+    textapi.sentiment({ url }, (error, response) => {
+      if (error) {
+        res.status(500).send({ error });
+      } else {
+        res.send(response);
+      }
+    });
+  });
+  
 
 
 // Designates what port the app will listen to for incoming requests

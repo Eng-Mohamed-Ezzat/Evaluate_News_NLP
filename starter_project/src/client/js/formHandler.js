@@ -10,18 +10,27 @@ form.addEventListener('submit', handleSubmit);
 
 function handleSubmit(event) {
     event.preventDefault();
-
-    // Get the URL from the input field
     const formText = document.getElementById('name').value;
+    if (formText === "") {
+      alert("Please enter a URL!");
+      return;
+    }
+    fetch('/api', {
+      method: 'POST',
+      body: JSON.stringify({ url: formText }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        document.getElementById('results').innerHTML = `
+          Polarity: ${data.polarity}<br>
+          Subjectivity: ${data.subjectivity}<br>
+          Snippet: ${data.text}
+        `;
+      });
+  }
+  
 
-    // This is an example code that checks the submitted name. You may remove it from your code
-    checkForName(formText);
-    
-    // Check if the URL is valid
- 
-        // If the URL is valid, send it to the server using the serverURL constant above
-      
-}
 
 // Function to send data to the server
 
