@@ -3,16 +3,18 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
     "start": "node src/server/index.js",
+    "test": "jest",
     "build-prod": "webpack --config webpack.prod.js",
-    "build-dev": "webpack-dev-server  --config webpack.dev.js"
+    "build-dev": "webpack serve --config webpack.dev.js",
+    "build": "npm run build-prod"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "aylien_textapi": "^0.7.0",
     "clean-webpack-plugin": "^4.0.0",
     "cors": "^2.8.5",
     "css-loader": "^6.10.0",
