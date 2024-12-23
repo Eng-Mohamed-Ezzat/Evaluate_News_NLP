@@ -1,39 +1,54 @@
-// Replace checkForName with a function that checks the URL
-import { checkForName } from './nameChecker'
+async function handleSubmit(event) {
+  event.preventDefault();
 
-// If working on Udacity workspace, update this with the Server API URL e.g. `https://wfkdhyvtzx.prod.udacity-student-workspaces.com/api`
-// const serverURL = 'https://wfkdhyvtzx.prod.udacity-student-workspaces.com/api'
-const serverURL = 'https://localhost:8000/api'
-
-const form = document.getElementById('urlForm');
-form.addEventListener('submit', handleSubmit);
-
-function handleSubmit(event) {
-    event.preventDefault();
-    const formText = document.getElementById('name').value;
-    if (formText === "") {
-      alert("Please enter a URL!");
+  // Get the form input
+  const formText = document.getElementById('name').value;
+  if (!formText) {
+      alert('Please enter a URL');
       return;
-    }
-    fetch('/api', {
-      method: 'POST',
-      body: JSON.stringify({ url: formText }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        document.getElementById('results').innerHTML = `
-          Polarity: ${data.polarity}<br>
-          Subjectivity: ${data.subjectivity}<br>
-          Snippet: ${data.text}
-        `;
-      });
   }
-  
 
+  console.log('::: Form Submitted :::');
 
-// Function to send data to the server
+  // Send the URL to the backend for analysis
+  try {
+      const response = await fetch('http://localhost:8081/api', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url: formText }),
+      });
 
-// Export the handleSubmit function
+      const data = await response.json();
+
+      // Extract Polarity, Subjectivity, and Snippet
+      const sentences = data.response?.sentences || [];
+      const snippet = sentences.length > 0
+          ? sentences.map(sentence => sentence.words.map(word => word.token).join(' ')).join('. ')
+          : 'Not available';
+
+      // Placeholder for Polarity and Subjectivity (as they are not in the response)
+      const polarity = 'Not available';
+      const subjectivity = 'Not available';
+
+      // Extract Entities and Topics
+      const entitiesList = data.response.entities?.map(entity => entity.matchedText).join(', ') || 'None';
+      const topicsList = data.response.topics?.map(topic => topic.label).join(', ') || 'None';
+
+      // Update the results UI
+      document.getElementById('results').innerHTML = `
+          <h3>Analysis Results:</h3>
+          <p><strong>Polarity:</strong> ${polarity}</p>
+          <p><strong>Subjectivity:</strong> ${subjectivity}</p>
+          <p><strong>Snippet:</strong> ${snippet}</p>
+          <p><strong>Entities:</strong> ${entitiesList}</p>
+          <p><strong>Topics:</strong> ${topicsList}</p>
+      `;
+  } catch (error) {
+      console.error('Error during API request:', error);
+      alert('Failed to analyze the URL. Please try again.');
+  }
+}
+
 export { handleSubmit };
-

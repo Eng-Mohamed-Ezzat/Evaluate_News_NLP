@@ -1,51 +1,57 @@
-var path = require('path');
+const fetch = require('node-fetch');
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
+const cors = require('cors');
 
-require('dotenv').config();
+
 
 dotenv.config();
-const aylien = require('aylien_textapi');
-const textapi = new aylien({
-  application_id: process.env.API_ID,
-  application_key: process.env.API_KEY
-});
-
+console.log('TEXTRAZOR_API_KEY:', process.env.TEXTRAZOR_API_KEY);
 const app = express();
-
-const cors = require('cors');
 
 app.use(cors());
 app.use(bodyParser.json());
 
 console.log(__dirname);
 
-// Variables for url and api key
+// Variables for API key
+const TEXTRAZOR_API_KEY = process.env.TEXTRAZOR_API_KEY;
 
 
-app.get('/', function (req, res) {
-    res.send("This is the server API page, you may access its services via the client app.");
-});
-
-
-// POST Route
-app.post('/api', (req, res) => {
+// Endpoint for TextRazor API request
+app.post(['/api', '/analyze'], async (req, res) => {
+    console.log('Endpoint for TextRazor API request');
     const { url } = req.body;
-    textapi.sentiment({ url }, (error, response) => {
-      if (error) {
-        res.status(500).send({ error });
-      } else {
-        res.send(response);
-      }
-    });
-  });
-  
-
-
-// Designates what port the app will listen to for incoming requests
-app.listen(8000, function () {
-    console.log('Example app listening on port 8000!');
+    
+    if (!url) {
+        return res.status(400).send({ error: 'URL is required' });
+    }
+    
+    try {
+        const response = await fetch('https://api.textrazor.com/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'x-textrazor-key': TEXTRAZOR_API_KEY,
+            },
+            body: `url=${encodeURIComponent(url)}&extractors=entities,topics,words`,
+        });
+        console.log(response);
+        const data = await response.json();
+        res.send(data);
+    } catch (error) {
+        console.error('Error calling TextRazor API:', error);
+        res.status(500).send({ error: 'Failed to analyze text' });
+    }
 });
 
+// Set up server to use dist folder
+app.use(express.static('dist'));
 
+// Start server
+const port = 8081;
+app.listen(port, () => {
+    console.log(`Server is running on localhost:${port}`);
+});
