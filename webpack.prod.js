@@ -27,7 +27,7 @@ module.exports = {
         new WorkboxPlugin.GenerateSW()
     ],
     devServer: {
-        port: 3000,
+        port: 8081,
         allowedHosts: 'all'
     }
 }

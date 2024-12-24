@@ -1,54 +1,59 @@
+import { checkForName } from './nameChecker';
+
+const serverURL = '/analyze'; // Server endpoint for TextRazor API
+
+document.getElementById('urlForm').addEventListener('submit', handleSubmit);
+
 async function handleSubmit(event) {
-  event.preventDefault();
+    event.preventDefault();
 
-  // Get the form input
-  const formText = document.getElementById('name').value;
-  if (!formText) {
-      alert('Please enter a URL');
-      return;
-  }
+    const formText = document.getElementById('name').value;
 
-  console.log('::: Form Submitted :::');
+    // Validate input
+    if (!checkForName(formText)) {
+        alert('Invalid input. Please enter valid text.');
+        return;
+    }
 
-  // Send the URL to the backend for analysis
-  try {
-      const response = await fetch('http://localhost:8081/api', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ url: formText }),
-      });
+    try {
+        const response = await fetch(serverURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: formText }),
+        });
 
-      const data = await response.json();
+        if (!response.ok) {
+            throw new Error('Failed to analyze text');
+        }
 
-      // Extract Polarity, Subjectivity, and Snippet
-      const sentences = data.response?.sentences || [];
-      const snippet = sentences.length > 0
-          ? sentences.map(sentence => sentence.words.map(word => word.token).join(' ')).join('. ')
-          : 'Not available';
-
-      // Placeholder for Polarity and Subjectivity (as they are not in the response)
-      const polarity = 'Not available';
-      const subjectivity = 'Not available';
-
-      // Extract Entities and Topics
-      const entitiesList = data.response.entities?.map(entity => entity.matchedText).join(', ') || 'None';
-      const topicsList = data.response.topics?.map(topic => topic.label).join(', ') || 'None';
-
-      // Update the results UI
-      document.getElementById('results').innerHTML = `
-          <h3>Analysis Results:</h3>
-          <p><strong>Polarity:</strong> ${polarity}</p>
-          <p><strong>Subjectivity:</strong> ${subjectivity}</p>
-          <p><strong>Snippet:</strong> ${snippet}</p>
-          <p><strong>Entities:</strong> ${entitiesList}</p>
-          <p><strong>Topics:</strong> ${topicsList}</p>
-      `;
-  } catch (error) {
-      console.error('Error during API request:', error);
-      alert('Failed to analyze the URL. Please try again.');
-  }
+        const data = await response.json();
+        updateUI(data);
+    } catch (error) {
+        console.error('Error:', error.message);
+        alert('An error occurred while processing your request.');
+    }
 }
+
+function updateUI(data) {
+  const resultsDiv = document.getElementById('results');
+
+  // Extract entities
+  const entities = data.response.entities || [];
+  const entityList = entities.map(entity => entity.entityId || entity.matchedText).join(', ');
+
+  // Extract topics
+  const topics = data.response.topics || [];
+  const topicList = topics.map(topic => topic.label).join(', ');
+
+  // Display results
+  resultsDiv.innerHTML = `
+      <h3>Analysis Results</h3>
+      <p><strong>Entities:</strong> ${entityList || 'N/A'}</p>
+      <p><strong>Topics:</strong> ${topicList || 'N/A'}</p>
+  `;
+}
+
 
 export { handleSubmit };
