@@ -4,6 +4,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TextRazor Analysis</title>
+    <style>
+        /* General Reset */
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: #ffffff;
+        }
+
+        /* Header Styling */
+        header {
+            background: #4a00e0;
+            text-align: center;
+            padding: 1rem 0;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        /* Main Styling */
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        label {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        input {
+            width: calc(100% - 2rem);
+            margin: 1rem 0;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            background-color: #ffffff;
+            color: #4a00e0;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        button:hover {
+            background-color: #4a00e0;
+            color: #ffffff;
+        }
+
+        #results {
+            margin-top: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -12,7 +97,7 @@
     <main>
         <form id="urlForm">
             <label for="name">Enter Text:</label>
-            <input type="text" id="name" name="input" required>
+            <input type="text" id="name" name="input" placeholder="Type your text here..." required>
             <button type="submit">Analyze</button>
         </form>
         <div id="results"></div>

@@ -37,23 +37,46 @@ async function handleSubmit(event) {
 }
 
 function updateUI(data) {
-  const resultsDiv = document.getElementById('results');
-
-  // Extract entities
-  const entities = data.response.entities || [];
-  const entityList = entities.map(entity => entity.entityId || entity.matchedText).join(', ');
-
-  // Extract topics
-  const topics = data.response.topics || [];
-  const topicList = topics.map(topic => topic.label).join(', ');
-
-  // Display results
-  resultsDiv.innerHTML = `
-      <h3>Analysis Results</h3>
-      <p><strong>Entities:</strong> ${entityList || 'N/A'}</p>
-      <p><strong>Topics:</strong> ${topicList || 'N/A'}</p>
-  `;
-}
+    const resultsDiv = document.getElementById('results');
+  
+    // Extract entities and calculate frequencies
+    const entities = data.response.entities || [];
+    const entityCounts = {};
+    entities.forEach(entity => {
+      const key = entity.entityId || entity.matchedText || 'Unknown';
+      entityCounts[key] = (entityCounts[key] || 0) + 1;
+    });
+  
+    // Find the most common entity
+    const mostCommonEntity = Object.entries(entityCounts).reduce(
+      (max, [key, count]) => (count > max.count ? { entity: key, count } : max),
+      { entity: 'N/A', count: 0 }
+    );
+  
+    // Extract topics and calculate frequencies
+    const topics = data.response.topics || [];
+    const topicCounts = {};
+    topics.forEach(topic => {
+      const key = topic.label || 'Unknown';
+      topicCounts[key] = (topicCounts[key] || 0) + 1;
+    });
+  
+    // Find the most common topic
+    const mostCommonTopic = Object.entries(topicCounts).reduce(
+      (max, [key, count]) => (count > max.count ? { topic: key, count } : max),
+      { topic: 'N/A', count: 0 }
+    );
+  
+    // Display results
+    resultsDiv.innerHTML = `
+        <h3>Analysis Results</h3>
+        <p><strong>Entities:</strong> ${Object.keys(entityCounts).join(', ') || 'N/A'}</p>
+        <p><strong>Most Common Entity:</strong> ${mostCommonEntity.entity} (${mostCommonEntity.count} times)</p>
+        <p><strong>Topics:</strong> ${Object.keys(topicCounts).join(', ') || 'N/A'}</p>
+        <p><strong>Most Common Topic:</strong> ${mostCommonTopic.topic} (${mostCommonTopic.count} times)</p>
+    `;
+  }
+  
 
 
 export { handleSubmit };
